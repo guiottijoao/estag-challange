@@ -52,7 +52,7 @@ if ($stmt->rowCount() > 0) {
               name="name"
               type="text"
               placeholder="Category name" />
-            <input id="tax" name="tax" type="number" placeholder="Tax" />
+            <input id="tax" name="tax" type="number" step="0.01" min="0" max="100" placeholder="Tax" />
           </div>
           <button class="submit-btn" id="submit-btn" type="submit">Add Category</button>
         </form>
