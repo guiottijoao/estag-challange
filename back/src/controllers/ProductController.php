@@ -15,7 +15,7 @@ class ProductController
     try {
       $this->validate($data);
 
-      $stmt = $this->db->prepare("INSERT INTO products (name, amount, price, category) VALUES (:name, :amount, :price, :category_code)");
+      $stmt = $this->db->prepare("INSERT INTO products (name, amount, price, category_code) VALUES (:name, :amount, :price, :category_code)");
       $stmt->bindValue(':name', $this->sanitize($data['name']), PDO::PARAM_STR);
       $stmt->bindValue(':amount', (int)$data['amount']);
       $stmt->bindValue(':price', $data['price']);
