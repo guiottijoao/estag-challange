@@ -55,21 +55,33 @@ class OrderController
       $productPrice = $search_product_price->fetch(PDO::FETCH_ASSOC)['price'];
 
       $productAmount = $data['amount'];
-
       $orderItemTotalTax = $this->calcOrderItemTotalTax($categoryTax, $productPrice, $productAmount);
+      $orderItemTotalPrice = $orderItemTotalTax + ($productPrice * $productAmount);
 
       //order
       $order_items_stmt = $this->db->query("SELECT * FROM order_item");
       $orderItems = $order_items_stmt->fetch();
+
       if (!$orderItems) {
-        error_log("Join if");
-        $orderTotalPrice = $orderItemTotalTax + ($productPrice * $productAmount);
-        $stmt = $this->db->prepare("UPDATE orders O
+        $stmt = $this->db->prepare("UPDATE orders o
         SET total = :total, tax = :tax
         WHERE o.code = :order_id");
-      
-        $stmt->bindValue(":total", $orderTotalPrice);
+
+        $stmt->bindValue(":total", $orderItemTotalPrice);
         $stmt->bindValue(":tax", $orderItemTotalTax);
+        $stmt->bindValue(":order_id", $activeOrderId);
+        $stmt->execute();
+      } else {
+        $order_select_stmt = $this->db->query("SELECT * FROM orders");
+        $activeOrder = $order_select_stmt->fetch(PDO::FETCH_ASSOC);
+        $orderTotalPrice = $activeOrder['total'] + $orderItemTotalPrice;
+        $orderTotalTax = $activeOrder['tax'] + $orderItemTotalTax;
+
+        $stmt = $this->db->prepare("UPDATE orders o
+        SET total = :total, tax = :tax
+        WHERE o.code = :order_id");
+        $stmt->bindValue(":total", $orderTotalPrice);
+        $stmt->bindValue(":tax", $orderTotalTax);
         $stmt->bindValue(":order_id", $activeOrderId);
         $stmt->execute();
       }
