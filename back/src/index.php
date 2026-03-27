@@ -6,8 +6,6 @@ $db = Database::getConnection();
 $categories = [];
 $products = [];
 $orderItems = [];
-// "orders" but it will always be only one
-$orders = [];
 
 $category_stmt = $db->query("SELECT * FROM categories");
 if ($category_stmt->rowCount() > 0) {
@@ -24,12 +22,8 @@ if ($order_item_stmt->rowCount() > 0) {
   $orderItems = $order_item_stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$orders_stmt = $db->query("SELECT * FROM orders");
-if ($orders_stmt->rowCount() > 0) {
-  $orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-$activeOrder = $orders ? $orders[0] : null;
+$orders_stmt = $db->query("SELECT * FROM orders o WHERE o.status = 'open'");
+$activeOrder = $orders_stmt->rowCount() > 0 ? $orders_stmt->fetch(PDO::FETCH_ASSOC) : null; 
 
 function findProductById($productId, $productsList)
 {
@@ -138,10 +132,10 @@ function calcTotalOrderItemPrice(int $amount, float $price, float $totalTax)
             </div>
           </div>
 
-          <div class="actions">
-            <button class="cancel-btn" id="cancel-btn">Cancel</button>
-            <button id="finish-btn">Finish</button>
-          </div>
+          <form class="actions" method="POST">
+            <button type="submit" onclick="return confirm('Cancel order?')" formaction="actions/orders/cancelOrder.php" class="cancel-btn" id="cancel-btn">Cancel</button>
+            <button type="submit" onclick="return confirm('Finish order?')" formaction="actions/orders/finishOrder.php" id="finish-btn">Finish</button>
+          </form>
         </div>
       </section>
     </main>
@@ -218,6 +212,8 @@ function calcTotalOrderItemPrice(int $amount, float $price, float $totalTax)
     display: flex;
     gap: 0.5rem;
     width: fit-content;
+    display: flex;
+    flex-direction: row;
   }
 
   #finish-btn {
