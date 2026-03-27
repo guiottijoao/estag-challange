@@ -36,7 +36,7 @@ class FinishOrderController
           $open_order_update_stmt->execute();
         }
       }
-      return;
+      throw new Exception("You dont have items in your order.");
     } catch (Exception $e) {
       throw $e;
     }
