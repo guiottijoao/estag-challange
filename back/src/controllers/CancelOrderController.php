@@ -14,6 +14,10 @@ class CancelOrderController
     try {
       $active_order_stmt = $this->db->query("SELECT * FROM orders o WHERE o.status = 'open'");
       $order = $active_order_stmt->fetch(PDO::FETCH_ASSOC);
+      $order_items_stmt = $this->db->query("SELECT * FROM order_item");
+      $orderItems = $order_items_stmt->fetch(PDO::FETCH_ASSOC);
+      if (!$order || !$orderItems) return;
+
       $delete_order_items_stmt = $this->db->prepare("DELETE FROM order_item o WHERE o.order_code = :order_code");
       $delete_order_items_stmt->execute([":order_code" => $order['code']]);
       
