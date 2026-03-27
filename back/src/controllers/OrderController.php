@@ -17,7 +17,10 @@ class OrderController
 
   private function verifyStockAvailability(array $product, array $orderItem)
   {
-    if ($product['amount'] < $orderItem['amount']) {
+    $existing_item_amount_stmt = $this->db->prepare("SELECT amount FROM order_item o WHERE o.product_code = :product_code");
+    $existing_item_amount_stmt->execute([":product_code" => $orderItem['product-code']]);
+    $existingItemAmount = $existing_item_amount_stmt->fetchColumn();
+    if ($product['amount'] < $orderItem['amount'] + $existingItemAmount) {
       throw new Exception("This product has only " . (int)$product['amount'] . " itens in stock.");
     }
     return true;
