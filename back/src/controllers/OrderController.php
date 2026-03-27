@@ -74,7 +74,6 @@ class OrderController
 
       $orderItemTotalPrice = $orderItemTotalTax + ($productPrice * $productAmount);
 
-      //criação
       $order_items_stmt = $this->db->query("SELECT * FROM order_item");
       $orderItems = $order_items_stmt->fetch();
 
@@ -91,7 +90,6 @@ class OrderController
         RETURNING *"
       );
 
-      // Sem order -> cria order -> insere item
       if (!$activeOrder) {
         $order_insert_stmt->execute([":total" => $orderItemTotalPrice,  ":tax" => $orderItemTotalTax]);
         $order_select_stmt = $this->db->query("SELECT * FROM orders o WHERE o.status = 'open'");
@@ -99,13 +97,11 @@ class OrderController
 
         return $insert_item_stmt->execute([":order_code" => $activeOrder['code'], ":product_code" => $productId, "amount" => $productAmount, ":price" => $productPrice, ":tax" => $orderItemTotalTax]);
 
-        // Com order
       } else {
         $orderTotalPrice = $activeOrder['total'] + $orderItemTotalPrice;
         $orderTotalTax = $activeOrder['tax'] + $orderItemTotalTax;
         $order_update_stmt->execute([":total" => $orderTotalPrice, ":tax" => $orderTotalTax]);
 
-        // Com order, com items, produto repetido
         if ($orderItems && $this->isOrderItemRepeated($productId, $activeOrder['code'])) {
           $stmt = $this->db->prepare("SELECT * FROM order_item o
             WHERE o.product_code = :product_code AND o.order_code = :order_code");
@@ -122,7 +118,6 @@ class OrderController
 
           return $existing_item_stmt->execute([":new_amount" => $amountsAdded, ":new_total_tax" => $newTotalTax, ":product_code" => $productId]);
         }
-        // Com order, sem items ou produto novo -> insere item
         return $insert_item_stmt->execute([":order_code" => $activeOrder['code'], ":product_code" => $productId, "amount" => $productAmount, ":price" => $productPrice, ":tax" => $orderItemTotalTax]);
       }
     } catch (Exception $e) {

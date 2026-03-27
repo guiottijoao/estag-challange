@@ -19,7 +19,6 @@ if ($product_stmt->rowCount() > 0) {
 function findCategoryById($categoryId, $categoriesList)
 {
   $results = array_filter($categoriesList, fn($category) => $category['code'] === $categoryId);
-  // reindexa os itens começando do 0 (como só  vai ter um, é ele que eu quero)
   return $category = array_values($results)[0]['name'];
 }
 ?>

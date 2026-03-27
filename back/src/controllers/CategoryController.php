@@ -38,7 +38,6 @@ class CategoryController
       throw new Exception("Category name cannot exceed 20 characters.");
     }
 
-    // verificar se contém apenas letras, números e espeços
     if (!preg_match('/^[\p{L}\p{N}\s]+$/u', $name)) {
       throw new Exception("Name contains invalid characters.");
     }
