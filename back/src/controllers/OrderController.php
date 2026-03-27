@@ -37,7 +37,7 @@ class OrderController
       $this->validate($data);
 
       $activeOrder = [];
-      $order_select_stmt = $this->db->query("SELECT * FROM orders");
+      $order_select_stmt = $this->db->query("SELECT * FROM orders WHERE status = 'open'");
       $productId = $data['product-code'];
 
       $search_category_id = $this->db->prepare(
@@ -70,7 +70,9 @@ class OrderController
 
       $order_insert_stmt = $this->db->prepare("INSERT INTO orders (total, tax) VALUES (:total, :tax)");
       $order_update_stmt = $this->db->prepare("UPDATE orders o
-      SET total = :total, tax = :tax");
+      SET total = :total, tax = :tax
+      WHERE status = 'open'");
+
       $activeOrder = $order_select_stmt->fetch(PDO::FETCH_ASSOC);
 
       $insert_item_stmt = $this->db->prepare(
@@ -93,7 +95,7 @@ class OrderController
         $orderTotalTax = $activeOrder['tax'] + $orderItemTotalTax;
         $order_update_stmt->execute([":total" => $orderTotalPrice, ":tax" => $orderTotalTax]);
 
-        // Com order, com items, produto repetido -> atualiza order -> atualiza item existente
+        // Com order, com items, produto repetido
         if ($orderItems && $this->isOrderItemRepeated($productId)) {
           $stmt = $this->db->prepare("SELECT * FROM order_item o
             WHERE o.product_code = :product_code");
