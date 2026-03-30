@@ -33,7 +33,7 @@ class FinishOrderController
             $this->discountStock($item);
           }
           $open_order_update_stmt = $this->db->prepare("UPDATE orders SET status = 'closed'");
-          $open_order_update_stmt->execute();
+          return $open_order_update_stmt->execute();
         }
       }
       throw new Exception("You dont have items in your order.");
