@@ -25,6 +25,11 @@ if ($order_items_stmt->rowCount() > 0) {
   $orderItems = $order_items_stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function filteredOrderItems($items, $orderId)
+{
+  return array_filter($items, fn($item) => $item['order_code'] === $orderId);
+}
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -62,7 +67,7 @@ if ($order_items_stmt->rowCount() > 0) {
                 <td><?= $order['code'] ?></td>
                 <td>$<?= number_format($order['tax'], 2, ',', '.') ?></td>
                 <td>$<?= number_format($order['total'], 2, ',', '.') ?></td>
-                <td><a class="view-btn" id="view-btn">
+                <td><a onclick="openOrderModal('<?= $order['code'] ?>')" class="view-btn">
                     View
                   </a></td>
               </tr>
@@ -85,31 +90,35 @@ if ($order_items_stmt->rowCount() > 0) {
             <th>Unit Price</th>
             <th>Total tax</th>
           </tr>
-          <tbody id="order-products-table-content">
-            <?php foreach ($orderItems as $item): ?>
-              <tr>
-                <td><?= $item['name'] ?></td>
-                <td><?= $item['amount'] ?></td>
-                <td>$<?= number_format($item['price'], 2, ',', '.') ?></td>
-                <td><?= number_format($item['tax'], 2, ',', '.') ?>%</td>
-              </tr>
-            <?php endforeach ?>
-          </tbody>
+          <tbody id="order-products-table-content"></tbody>
         </table>
       </dialog>
     </main>
   </div>
   <script>
-    const closeModalBtn = document.getElementById("close-modal-btn");
-    const viewBtn = document.getElementById("view-btn");
-    const orderProductsModal = document.getElementById("order-products-modal");
+    const allOrders = <?= json_encode($orders) ?>;
+    const allItems = <?= json_encode($orderItems) ?>;
+    const modal = document.getElementById('order-products-modal');
+    const tableContent = document.getElementById('order-products-table-content');
+    const closeBtn = document.getElementById('close-modal-btn');
 
-    viewBtn.addEventListener("click", () => {
-      orderProductsModal.showModal();
-    })
-    closeModalBtn.addEventListener("click", () => {
-      orderProductsModal.close();
-    })
+    function openOrderModal(orderCode) {
+      const items = allItems.filter(item => item['order_code'] == orderCode);
+
+      tableContent.innerHTML = items.map(item => `
+       <tr>
+        <td>${item['name']}</td>
+        <td>${item['amount']}</td>
+        <td>$${parseFloat(item['price']).toFixed(2)}</td>
+        <td>$${parseFloat(item['tax']).toFixed(2)}</td>
+       </tr>
+       
+     `).join('');
+
+      modal.showModal();
+    }
+
+    closeBtn.addEventListener('click', () => modal.close());
   </script>
 </body>
 
