@@ -65,7 +65,7 @@ function findCategoryById($categoryId, $categoriesList)
           <input type="text" name="name" placeholder="Product name" id="product-name" />
           <div class="fields-wrapper">
             <input type="number" name="amount" placeholder="Amount" id="product-amount" />
-            <input type="number" name="price" placeholder="Price" id="product-price" />
+            <input type="number" name="price" step="0.01" min="0.1" max="10000000000" placeholder="Price" id="product-price" />
             <select name="category-code" id="category-selector">
               <?php foreach ($categories as $cat): ?>
                 <option value="<?= $cat['code']; ?>"><?= $cat['name']; ?></option>
@@ -111,6 +111,70 @@ function findCategoryById($categoryId, $categoriesList)
     </main>
   </div>
 
+  <script>
+    const categorySelector = document.getElementById("category-selector");
+    const productNameInput = document.getElementById("product-name");
+    const productAmountInput = document.getElementById("product-amount");
+    const productPriceInput = document.getElementById("product-price");
+
+    const productNameObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (productNameInput.type !== "text") {
+            productNameInput.type = "text";
+            productNameInput.value = "";
+          }
+        }
+      });
+    });
+    
+    const productAmountObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (productAmountInput.type !== "number") {
+            productAmountInput.type = "number";
+            productAmountInput.value = "";
+          }
+        }
+      });
+    });
+    
+    const productPriceObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (productPriceInput.type !== "number") {
+            productPriceInput.type = "number";
+            productPricetInput.value = "";
+          }
+        }
+      });
+    });
+    
+    const categorySelectorObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) {
+              node.remove();
+            }
+          });
+        }
+      });
+    });
+
+    categorySelectorObserver.observe(categorySelector, {
+      childList: true
+    });
+    productPriceObserver.observe(productPriceInput, {
+      attributes: true
+    });
+    productAmountObserver.observe(productAmountInput, {
+      attributes: true
+    });
+    productNameObserver.observe(productNameInput, {
+      attributes: true
+    });
+  </script>
 </body>
 
 </html>

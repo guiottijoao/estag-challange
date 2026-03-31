@@ -147,6 +147,12 @@ function calcTotalOrderItemPrice(int $amount, float $price, float $totalTax)
   <script>
     const products = <?= json_encode($products); ?>;
     const categories = <?= json_encode($categories); ?>;
+    const productSelector = document.getElementById("product-selector");
+    const orderProductAmountInput = document.getElementById("product-amount");
+    const orderTaxInput = document.getElementById("order-tax");
+    const orderPriceInput = document.getElementById("product-unit-price");
+    const totalOrderPrice = document.getElementById("total-order-price");
+    const totalOrderTax = document.getElementById("total-order-tax");
 
     document.getElementById("product-selector").addEventListener("change", (e) => {
       const code = e.target.value;
@@ -155,6 +161,79 @@ function calcTotalOrderItemPrice(int $amount, float $price, float $totalTax)
 
       document.getElementById('order-tax').value = `Tax: ${productCategory.tax}%`;
       document.getElementById('product-unit-price').value = `Price: $${product.price}`;
+    });
+
+    const productSelectorObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) {
+              node.remove();
+            }
+          });
+        }
+      });
+    });
+
+    const orderProductAmountObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (orderProductAmountInput.type !== "number") {
+            orderProductAmountInput.type = "number";
+          }
+        }
+      });
+    });
+
+    const taxInputObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (orderTaxInput.type !== "text") {
+            orderTaxInput.type = "text";
+            orderTaxInput.value = "Tax";
+          }
+        }
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "disabled"
+        ) {
+          if (orderTaxInput.disabled !== true) {
+            orderTaxInput.disabled = true;
+          }
+        }
+      });
+    });
+
+    const orderPriceInputObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (orderPriceInput.type !== "text") {
+            orderPriceInput.type = "text";
+            orderPriceInput.value = "Price";
+            }
+        }
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "disabled"
+        ) {
+          if (orderPriceInput.disabled !== true) {
+            orderPriceInput.disabled = true;
+          }
+        }
+      });
+    });
+
+    orderProductAmountObserver.observe(orderProductAmountInput, {
+      attributes: true,
+    });
+    productSelectorObserver.observe(productSelector, {
+      childList: true
+    });
+    taxInputObserver.observe(orderTaxInput, {
+      attributes: true
+    });
+    orderPriceInputObserver.observe(orderPriceInput, {
+      attributes: true,
     });
   </script>
 </body>

@@ -98,6 +98,39 @@ if ($stmt->rowCount() > 0) {
     </main>
   </div>
 
+  <script>
+    const categoryNameInput = document.getElementById("name");
+    const categoryTaxInput = document.getElementById("tax");
+
+    const categoryNameObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (categoryNameInput.type !== "text") {
+            categoryNameInput.type = "text";
+            categoryNameInput.value = ""
+          }
+        }
+      });
+    });
+    
+    const categoryTaxObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "type") {
+          if (categoryTaxInput.type !== "number") {
+            categoryTaxInput.type = "number";
+            categoryTaxInput.value = ""
+          }
+        }
+      });
+    });
+
+    categoryNameObserver.observe(categoryNameInput, {
+      attributes: true
+    });
+    categoryTaxObserver.observe(categoryTaxInput, {
+      attributes: true
+    });
+  </script>
 </body>
 
 </html>
